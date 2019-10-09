@@ -15,21 +15,68 @@ const player = {
     matrix: matrix
 }
 
-const gameMap = createMatrix(12, 20);
+const gameMap = createMatrix(15, 25);
 
 let dropRate = 0;
 let dropInterval = 1000;
-
 let lastTime = 0;
+
+function blockDrop() {
+    player.position.y++;
+
+    if (collide(gameMap, player)) {
+        player.position.y--;
+        matrixJoin(gameMap, player);
+        resetBlockPosition();
+    }
+
+    dropRate = 0;
+}
+
+function resetBlockPosition() {
+    player.position.y = 0;
+    player.position.x = 6;
+}
 
 function draw() {
     context.fillStyle = '#000';
     context.fillRect(0, 0, canvas.width, canvas.height);    
     
+    drawMatrix(gameMap,  {x: 0, y: 0});
     drawMatrix(player.matrix, player.position);
 }
 
-function matrixJoin() {
+function collide(gameMap, player) {
+    const m = player.matrix;
+    const o = player.position;
+    for (let y = 0; y < m.length; ++y) {
+        for (let x = 0; x < m[y].length; ++x) {
+            if (m[y][x] !== 0 &&
+               (gameMap[y + o.y] &&
+                gameMap[y + o.y][x + o.x]) !== 0) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function update(time = 0) {
+    const interval = time - lastTime;
+
+    dropRate = dropRate + interval;
+
+    if (dropRate > dropInterval) {
+        blockDrop();
+    }
+
+    lastTime = time;
+
+    draw();
+    requestAnimationFrame(update);
+}
+
+function matrixJoin(gameMap, player) {
     player.matrix.forEach((row, y) => {
         row.forEach((value, x) => {
             if (value !== 0) {
@@ -37,20 +84,6 @@ function matrixJoin() {
             }
         });
     });
-}
-
-function update(time = 0) {
-    const interval = time - lastTime;
-    lastTime = time;
-
-    dropRate = dropRate + interval;
-
-    if (dropRate > dropInterval) {
-        player.position.y = player.position.y + 1;
-        dropRate = 0;
-    }
-    draw();
-    requestAnimationFrame(update);
 }
 
 function createMatrix(width, height) {
@@ -73,15 +106,25 @@ function drawMatrix(matrix, offset) {
     });
 }
 
-
-
 document.addEventListener('keydown', event => {
    if (event.keyCode === 37) {
     player.position.x = player.position.x - 1;
+    if (collide(gameMap, player)) {
+        player.position.x = player.position.x + 1;
+        }
     } else if (event.keyCode === 39) {
         player.position.x = player.position.x + 1;
+        if (collide(gameMap, player)) {
+            player.position.x = player.position.x - 1;
+            }
     } else if (event.keyCode === 40){
-       player.position.y = player.position.y + 1;
+        player.position.y = player.position.y + 1;
+
+        if (collide(gameMap, player)) {
+            player.position.y--;
+            matrixJoin(gameMap, player);
+            resetBlockPosition();
+        }
     } else if (event.keyCode === 32) {
         rotate(matrix);
     }
