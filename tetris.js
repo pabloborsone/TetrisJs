@@ -10,6 +10,38 @@ const matrix = [
     [0, 0, 0],
 ];
 
+const matrix2 = [
+    [0, 1, 0],
+    [0, 1, 0],
+    [0, 1, 0],
+    [0, 1, 0],
+];
+
+const matrix3 = [
+    [0, 0, 0],
+    [1, 1, 0],
+    [1, 1, 0],
+];
+
+const matrix4 = [
+    [1, 0, 0],
+    [1, 0, 0],
+    [1, 1, 0],
+];
+
+const matrix5 = [
+    [0, 0, 1],
+    [0, 0, 1],
+    [0, 1, 1],
+];
+
+const matrix6 = [
+    [0, 0, 0],
+    [1, 0, 1],
+    [1, 1, 1],
+];
+
+
 const player = {
     position: {x: 6, y: 0},
     matrix: matrix
@@ -21,7 +53,10 @@ let dropRate = 0;
 let dropInterval = 1000;
 let lastTime = 0;
 
+
 function blockDrop() {
+
+
     player.position.y++;
 
     if (collide(gameMap, player)) {
@@ -34,14 +69,37 @@ function blockDrop() {
 }
 
 function resetBlockPosition() {
+  piece = Math.floor(Math.random() * 5);
+
+  switch(piece) {
+    case 0:
+      player.matrix = matrix;
+      break;
+    case 1:
+      player.matrix = matrix2;
+      break;
+    case 2:
+      player.matrix = matrix3;
+        break;
+    case 3:
+      player.matrix = matrix4;
+        break;
+    case 4:
+      player.matrix = matrix5;
+      break;
+    case 5:
+      player.matrix = matrix6;
+      break;
+    }
+
     player.position.y = 0;
     player.position.x = 6;
 }
 
 function draw() {
     context.fillStyle = '#000';
-    context.fillRect(0, 0, canvas.width, canvas.height);    
-    
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
     drawMatrix(gameMap,  {x: 0, y: 0});
     drawMatrix(player.matrix, player.position);
 }
