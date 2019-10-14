@@ -3,48 +3,51 @@ const context = canvas.getContext('2d');
 
 context.scale(20, 20);
 
-
-const matrix = [
+const tPiece = [
     [0, 1, 0],
     [1, 1, 1],
     [0, 0, 0],
 ];
 
-const matrix2 = [
-    [0, 1, 0],
-    [0, 1, 0],
-    [0, 1, 0],
-    [0, 1, 0],
+const lPiece = [
+    [0, 2, 0],
+    [0, 2, 0],
+    [0, 2, 2],
 ];
 
-const matrix3 = [
+const iPiece = [
+    [0 ,3, 0, 0],
+    [0 ,3, 0, 0],
+    [0 ,3, 0, 0],
+    [0 ,3, 0, 0],
+];
+
+const zPiece = [
+    [4 ,4, 0],
+    [0, 4, 4],
     [0, 0, 0],
-    [1, 1, 0],
-    [1, 1, 0],
 ];
 
-const matrix4 = [
-    [1, 0, 0],
-    [1, 0, 0],
-    [1, 1, 0],
-];
-
-const matrix5 = [
-    [0, 0, 1],
-    [0, 0, 1],
-    [0, 1, 1],
-];
-
-const matrix6 = [
+const sPiece = [
+    [0, 6, 6],
+    [6, 6, 0],
     [0, 0, 0],
-    [1, 0, 1],
-    [1, 1, 1],
 ];
 
+const square = [
+    [7, 7],
+    [7, 7],
+];
+
+const jPiece = [ 
+    [0, 8, 0],
+    [0, 8, 0],
+    [8, 8, 0],
+];
 
 const player = {
-    position: {x: 6, y: 0},
-    matrix: matrix
+    position: {x: 0, y: 0},
+    matrix: null,
 }
 
 const gameMap = createMatrix(15, 25);
@@ -52,15 +55,14 @@ const gameMap = createMatrix(15, 25);
 let dropRate = 0;
 let dropInterval = 1000;
 let lastTime = 0;
+var piece = 0;
 
 
 function blockDrop() {
-
-
-    player.position.y++;
+    player.position.y--;
 
     if (collide(gameMap, player)) {
-        player.position.y--;
+        player.position.y++;
         matrixJoin(gameMap, player);
         resetBlockPosition();
     }
@@ -68,32 +70,51 @@ function blockDrop() {
     dropRate = 0;
 }
 
+function randomGenerator() {
+    piece = Math.floor(Math.random() * (7 - 1) + 1);
+    return piece;
+}
+
 function resetBlockPosition() {
-  piece = Math.floor(Math.random() * 5);
+    randomGenerator();
 
   switch(piece) {
-    case 0:
-      player.matrix = matrix;
-      break;
     case 1:
-      player.matrix = matrix2;
+      player.matrix = tPiece;
+      player.position.y = 23;
+      player.position.x = 6;
       break;
     case 2:
-      player.matrix = matrix3;
-        break;
+      player.matrix = lPiece;
+      player.position.y = 22;
+      player.position.x = 6;
+      break;
     case 3:
-      player.matrix = matrix4;
-        break;
+      player.matrix = iPiece;
+      player.position.y = 21;
+      player.position.x = 6;
+      break;
     case 4:
-      player.matrix = matrix5;
+      player.matrix = zPiece;
+      player.position.y = 22;
+      player.position.x = 6;
       break;
     case 5:
-      player.matrix = matrix6;
+      player.matrix = square;
+      player.position.y = 23;
+      player.position.x = 6;
       break;
-    }
-
-    player.position.y = 0;
-    player.position.x = 6;
+    case 6:
+      player.matrix = sPiece;
+      player.position.y = 23;
+      player.position.x = 6;
+      break;
+    case 7:
+      player.matrix = jPiece;
+      player.position.y = 23;
+      player.position.x = 6;
+      break;
+  }
 }
 
 function draw() {
@@ -155,13 +176,37 @@ function createMatrix(width, height) {
 function drawMatrix(matrix, offset) {
     matrix.forEach((row, y) => {
         row.forEach((value, x) => {
-            if (value !== 0) {
-                context.fillStyle = 'red';
+            if (value === 1) {
+                context.fillStyle = 'purple';
+                context.fillRect(x + offset.x,
+                                 y + offset.y, 1, 1);
+            } else if (value === 2) {
+                context.fillStyle = 'blue';
+                context.fillRect(x + offset.x,
+                                 y + offset.y, 1, 1);
+            } else if (value === 3) {
+                context.fillStyle = 'cyan';
+                context.fillRect(x + offset.x,
+                                 y + offset.y, 1, 1);
+            } else if (value === 4) {
+                context.fillStyle = 'green';
+                context.fillRect(x + offset.x,
+                                 y + offset.y, 1, 1);
+            } else if (value === 5) {
+                context.fillStyle = 'yellow';
+                context.fillRect(x + offset.x,
+                                 y + offset.y, 1, 1);
+            } else if (value === 6) {
+                context.fillStyle = 'brown';
+                context.fillRect(x + offset.x,
+                                 y + offset.y, 1, 1);
+            } else if (value === 7) {
+                context.fillStyle = 'pink';
                 context.fillRect(x + offset.x,
                                  y + offset.y, 1, 1);
             }
-        });
     });
+});
 }
 
 document.addEventListener('keydown', event => {
@@ -175,23 +220,21 @@ document.addEventListener('keydown', event => {
         if (collide(gameMap, player)) {
             player.position.x = player.position.x - 1;
             }
-    } else if (event.keyCode === 40){
-        player.position.y = player.position.y + 1;
-
+    } else if (event.keyCode === 38){
+        player.position.y = player.position.y - 1;
         if (collide(gameMap, player)) {
-            player.position.y--;
+            player.position.y++;
             matrixJoin(gameMap, player);
             resetBlockPosition();
         }
     } else if (event.keyCode === 32) {
-        rotate(matrix);
+        rotate(player.matrix);
     }
 });
 
 function rotate(matrix) {
-    const n = matrix.length;
-    const x = Math.floor(n/ 2);
-    const y = n - 1;
+    const x = Math.floor(matrix.length / 2);
+    const y = matrix.length - 1;
     for (let i = 0; i < x; i++) {
        for (let j = i; j < y - i; j++) {
           k = matrix[i][j];
@@ -203,4 +246,5 @@ function rotate(matrix) {
     }
   }
 
+resetBlockPosition();
 update();
