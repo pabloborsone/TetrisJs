@@ -16,10 +16,10 @@ const lPiece = [
 ];
 
 const iPiece = [
-    [0 ,3, 0, 0],
-    [0 ,3, 0, 0],
-    [0 ,3, 0, 0],
-    [0 ,3, 0, 0],
+    [0 ,0, 3, 0, 0],
+    [0 ,0, 3, 0, 0],
+    [0 ,0, 3, 0, 0],
+    [0 ,0, 3, 0, 0],
 ];
 
 const zPiece = [
@@ -65,6 +65,7 @@ function blockDrop() {
         player.position.y++;
         matrixJoin(gameMap, player);
         resetBlockPosition();
+        gameMapSweep();
     }
 
     dropRate = 0;
@@ -77,43 +78,40 @@ function randomGenerator() {
 
 function resetBlockPosition() {
     randomGenerator();
-
+    
   switch(piece) {
     case 1:
       player.matrix = tPiece;
-      player.position.y = 23;
-      player.position.x = 6;
       break;
     case 2:
       player.matrix = lPiece;
-      player.position.y = 22;
-      player.position.x = 6;
       break;
     case 3:
       player.matrix = iPiece;
-      player.position.y = 21;
-      player.position.x = 6;
       break;
     case 4:
       player.matrix = zPiece;
-      player.position.y = 22;
-      player.position.x = 6;
       break;
     case 5:
       player.matrix = square;
-      player.position.y = 23;
-      player.position.x = 6;
       break;
     case 6:
       player.matrix = sPiece;
-      player.position.y = 23;
-      player.position.x = 6;
       break;
     case 7:
       player.matrix = jPiece;
-      player.position.y = 23;
-      player.position.x = 6;
       break;
+  }
+
+  player.position.y = gameMap.length - player.matrix.length + 1;
+  if (player.matrix == lPiece || player.matrix == jPiece || player.matrix == square || player.matrix == iPiece) {
+      player.position.y = gameMap.length - player.matrix.length;
+  }
+  player.position.x = (gameMap[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
+
+  if (collide(gameMap, player)) {
+      gameMap.forEach(row => row.fill(0));
+      alert("End game, biatch");
   }
 }
 
@@ -228,7 +226,7 @@ document.addEventListener('keydown', event => {
             resetBlockPosition();
         }
     } else if (event.keyCode === 32) {
-        rotate(player.matrix);
+        rotate(player.matrix.slice());
     }
 });
 
@@ -244,7 +242,21 @@ function rotate(matrix) {
           matrix[j][y - i] = k
        }
     }
-  }
+}
+
+function gameMapSweep() {
+    outer: for (let y = 0; y < gameMap.length-1; ++y) {
+        for (let x = 0; x < gameMap[y].length; ++x) {
+            if (gameMap[y][x] === 0) {
+                continue outer;
+            }
+        }
+
+        const row = gameMap.splice(y, 1)[0].fill(0);
+        gameMap.push(row);
+       --y;
+    }
+}
 
 resetBlockPosition();
 update();
