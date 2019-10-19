@@ -71,6 +71,10 @@ function blockDrop() {
     dropRate = 0;
 }
 
+function increaseSpeed() {
+    dropRate += 100;
+}
+
 function randomGenerator() {
     piece = Math.floor(Math.random() * (7 - 1) + 1);
     return piece;
@@ -81,7 +85,8 @@ function resetBlockPosition() {
     
   switch(piece) {
     case 1:
-      player.matrix = tPiece;
+        let t = tPiece.slice(0);
+      player.matrix = t;
       break;
     case 2:
       player.matrix = lPiece;
@@ -102,17 +107,24 @@ function resetBlockPosition() {
       player.matrix = jPiece;
       break;
   }
-
-  player.position.y = gameMap.length - player.matrix.length + 1;
+/*
   if (player.matrix == lPiece || player.matrix == jPiece || player.matrix == square || player.matrix == iPiece) {
       player.position.y = gameMap.length - player.matrix.length;
+  } else {
+    player.position.y = gameMap.length - player.matrix.length + 1;
   }
+  */
+  player.position.y = gameMap.length - player.matrix.length;
   player.position.x = (gameMap[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
 
-  if (collide(gameMap, player)) {
-      gameMap.forEach(row => row.fill(0));
-      alert("End game, biatch");
-  }
+    endGame();
+}
+
+function endGame() {
+    if (collide(gameMap, player)) {
+        gameMap.forEach(row => row.fill(0));
+        alert("End game");
+    }
 }
 
 function draw() {
@@ -224,9 +236,10 @@ document.addEventListener('keydown', event => {
             player.position.y++;
             matrixJoin(gameMap, player);
             resetBlockPosition();
+            gameMapSweep();
         }
     } else if (event.keyCode === 32) {
-        rotate(player.matrix.slice());
+        rotate(player.matrix);
     }
 });
 
