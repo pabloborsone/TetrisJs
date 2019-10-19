@@ -1,12 +1,17 @@
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
+const scoreBoard = document.getElementById('scoreBoard');
+var ranking = [];
+let totalScore = 0;
+var difficultyCounter = 0;
+var difficultyArray = ["Fácil", "Médio", "Difícil", "Desafiante", "Especialista"];
 
 context.scale(20, 20);
 
 const tPiece = [
+    [0, 0, 0],
     [0, 1, 0],
     [1, 1, 1],
-    [0, 0, 0],
 ];
 
 const lPiece = [
@@ -23,15 +28,15 @@ const iPiece = [
 ];
 
 const zPiece = [
-    [4 ,4, 0],
+    [0 ,0, 0],
+    [4, 4, 0],
     [0, 4, 4],
-    [0, 0, 0],
 ];
 
 const sPiece = [
+    [0, 0, 0],
     [0, 6, 6],
     [6, 6, 0],
-    [0, 0, 0],
 ];
 
 const square = [
@@ -39,7 +44,7 @@ const square = [
     [7, 7],
 ];
 
-const jPiece = [ 
+const jPiece = [
     [0, 8, 0],
     [0, 8, 0],
     [8, 8, 0],
@@ -55,8 +60,31 @@ const gameMap = createMatrix(15, 25);
 let dropRate = 0;
 let dropInterval = 1000;
 let lastTime = 0;
+var dropController = 0;
 var piece = 0;
+let pause = false;
 
+var minutesLabel = document.getElementById("minutes");
+var secondsLabel = document.getElementById("seconds");
+var totalSeconds = 0;
+
+if (!pause){
+    setInterval(setTime, 1000);
+}
+
+function setTime() {
+  ++totalSeconds;
+  secondsLabel.innerHTML = stringTime(totalSeconds % 60);
+  minutesLabel.innerHTML = stringTime(parseInt(totalSeconds / 60));
+}
+
+function stringTime(val) {
+  var valString = val + "";
+  if (valString.length < 2) {
+    return "0" + valString;
+  } else
+    return valString;
+}
 
 function blockDrop() {
     player.position.y--;
@@ -71,18 +99,49 @@ function blockDrop() {
     dropRate = 0;
 }
 
-function increaseSpeed() {
-    dropRate += 100;
-}
-
 function randomGenerator() {
     piece = Math.floor(Math.random() * (7 - 1) + 1);
     return piece;
 }
 
+function getCurrentScore() {
+    let havePoints = true;
+    let nRows = 0;
+    let ri = [];
+
+    gameMap.map(function(row) {
+        havePoints = true;
+
+        row.map(function (el) {
+            if (el == 0) { havePoints = false; }
+        })
+        if (havePoints) {
+            console.log(gameMap.indexOf(row))
+            nRows++;
+            ri.push(gameMap.indexOf(row))
+        }
+    })
+
+    ri.reverse()
+    return (10 * nRows * nRows);
+}
+
 function resetBlockPosition() {
     randomGenerator();
-    
+
+    totalScore += getCurrentScore();
+    difficulty.innerHTML = difficultyArray[difficultyCounter];
+    scoreBoard.innerHTML = totalScore;
+    if (totalScore % 500 == 0 && totalScore != 0 && totalScore != dropController) { //Lógica incorreta em totalScore % 500 == 0
+        if (dropInterval > 200) {
+            difficultyCounter++;
+            dropInterval -= 200;
+        } else if (dropInterval > 20) {
+            dropInterval -= 20;
+        }
+        dropController = totalScore;
+    }
+
   switch(piece) {
     case 1:
         let t = tPiece.slice(0);
@@ -106,7 +165,7 @@ function resetBlockPosition() {
     case 7:
       player.matrix = jPiece;
       break;
-  }
+    }
 /*
   if (player.matrix == lPiece || player.matrix == jPiece || player.matrix == square || player.matrix == iPiece) {
       player.position.y = gameMap.length - player.matrix.length;
@@ -124,8 +183,19 @@ function endGame() {
     if (collide(gameMap, player)) {
         gameMap.forEach(row => row.fill(0));
         alert("End game");
-    }
-}
+        let dropInterval = 1000;
+
+        ranking.push("Etevaldo", totalScore, difficultyArray[difficultyCounter], parseInt(totalSeconds / 60), totalSeconds % 60); //achar alguma maneira de inserir o tempo num melhor formato
+
+        totalSeconds = 0;
+        totalScore = 0;
+        difficultyCounter = 0;
+        difficulty.innerHTML = difficultyArray[difficultyCounter];
+        scoreBoard.innerHTML = totalScore;
+
+        rankingJog.innerHTML = ranking.toString();
+          }
+  }
 
 function draw() {
     context.fillStyle = '#000';
@@ -155,9 +225,9 @@ function update(time = 0) {
 
     dropRate = dropRate + interval;
 
-    if (dropRate > dropInterval) {
-        blockDrop();
-    }
+    if (dropRate > dropInterval && !pause) {
+      blockDrop();
+  }
 
     lastTime = time;
 
@@ -220,6 +290,14 @@ function drawMatrix(matrix, offset) {
 }
 
 document.addEventListener('keydown', event => {
+  if (event.keyCode === 27) {
+        if (pause) {
+            pause = false;
+        }else{
+            pause = true;
+        }
+    }
+
    if (event.keyCode === 37) {
     player.position.x = player.position.x - 1;
     if (collide(gameMap, player)) {
