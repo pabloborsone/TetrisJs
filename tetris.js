@@ -5,7 +5,7 @@ var ranking = [];
 let totalScore = 0;
 let scoreIncrease = 500;
 var difficultyCounter = 0;
-var difficultyArray = ["Fácil", "Médio", "Difícil", "Desafiante", "Especialista"];
+var difficultyArray = ["Easy", "Medium", "Hard", "Challenging", "Expert"];
 var gameMap = null;
 
 
@@ -75,26 +75,26 @@ var dropController = 0;
 var piece = 0;
 let pause = false;
 
-var minutesLabel = document.getElementById("minutes");
-var secondsLabel = document.getElementById("seconds");
+var minutes = document.getElementById("minutes");
+var seconds = document.getElementById("seconds");
 var totalSeconds = 0;
 
 if (!pause){
     setInterval(setTime, 1000);
-}
+} 
 
 function setTime() {
   ++totalSeconds;
-  secondsLabel.innerHTML = stringTime(totalSeconds % 60);
-  minutesLabel.innerHTML = stringTime(parseInt(totalSeconds / 60));
+  seconds.innerHTML = stringTime(totalSeconds % 60);
+  minutes.innerHTML = stringTime(parseInt(totalSeconds / 60));
 }
 
-function stringTime(val) {
-  var valString = val + "";
-  if (valString.length < 2) {
-    return "0" + valString;
+function stringTime(sec) {
+  var secString = sec + "";
+  if (secString.length < 2) {
+    return "0" + secString;
   } else
-    return valString;
+    return secString;
 }
 
 function blockDrop() {
@@ -111,7 +111,7 @@ function blockDrop() {
 }
 
 function randomGenerator() {
-    piece = Math.floor(Math.random() * (7 - 1) + 1);
+    piece = Math.floor(Math.random() * (9 - 1) + 1);
     return piece;
 }
 
@@ -176,6 +176,9 @@ function resetBlockPosition() {
     case 7:
       player.matrix = jPiece;
       break;
+    case 8:
+      player.matrix = uPiece;
+      break;
     }
 
   player.position.y = gameMap.length - player.matrix.length;
@@ -190,15 +193,14 @@ function endGame() {
         alert("End game");
         let dropInterval = 1000;
 
-        ranking.push(player.name, totalScore, difficultyArray[difficultyCounter], parseInt(totalSeconds / 60), totalSeconds % 60); //achar alguma maneira de inserir o tempo num melhor formato
+        ranking.push("°", player.name, totalScore, difficultyArray[difficultyCounter], parseInt(totalSeconds / 60), totalSeconds % 60, "<br>");
 
         totalSeconds = 0;
         totalScore = 0;
         difficultyCounter = 0;
         difficulty.innerHTML = difficultyArray[difficultyCounter];
         scoreBoard.innerHTML = totalScore;
-
-        rankingJog.innerHTML = ranking.toString();
+        rankingJog.innerHTML = ranking.join(" ");
           }
   }
 
@@ -289,7 +291,15 @@ function drawMatrix(matrix, offset) {
                 context.fillStyle = 'pink';
                 context.fillRect(x + offset.x,
                                  y + offset.y, 1, 1);
-            }
+            } else if (value === 8) {
+              context.fillStyle = 'gray';
+              context.fillRect(x + offset.x,
+                               y + offset.y, 1, 1);
+            } else if (value === 9) {
+              context.fillStyle = 'olive';
+              context.fillRect(x + offset.x,
+                               y + offset.y, 1, 1);
+              }
     });
 });
 }
