@@ -3,10 +3,11 @@ const context = canvas.getContext('2d');
 const scoreBoard = document.getElementById('scoreBoard');
 var ranking = [];
 let totalScore = 0;
+let scoreIncrease = 500;
 var difficultyCounter = 0;
 var difficultyArray = ["Fácil", "Médio", "Difícil", "Desafiante", "Especialista"];
+var gameMap = null;
 
-context.scale(20, 20);
 
 const tPiece = [
     [0, 0, 0],
@@ -50,12 +51,22 @@ const jPiece = [
     [8, 8, 0],
 ];
 
+const uPiece = [
+    [0, 0, 0],
+    [9, 0, 9],
+    [9, 9, 9],
+];
+
 const player = {
     position: {x: 0, y: 0},
     matrix: null,
+    name: null,
 }
 
-const gameMap = createMatrix(15, 25);
+const matrixDimensions = {
+    width: 0,
+    height: 0,
+}
 
 let dropRate = 0;
 let dropInterval = 1000;
@@ -132,7 +143,7 @@ function resetBlockPosition() {
     totalScore += getCurrentScore();
     difficulty.innerHTML = difficultyArray[difficultyCounter];
     scoreBoard.innerHTML = totalScore;
-    if (totalScore % 500 == 0 && totalScore != 0 && totalScore != dropController) { //Lógica incorreta em totalScore % 500 == 0
+    if (totalScore / scoreIncrease >= 1 && totalScore !== 0 && totalScore != dropController) {
         if (dropInterval > 200) {
             difficultyCounter++;
             dropInterval -= 200;
@@ -140,12 +151,12 @@ function resetBlockPosition() {
             dropInterval -= 20;
         }
         dropController = totalScore;
+        scoreIncrease += 500;
     }
 
   switch(piece) {
     case 1:
-        let t = tPiece.slice(0);
-      player.matrix = t;
+      player.matrix = tPiece;
       break;
     case 2:
       player.matrix = lPiece;
@@ -166,13 +177,7 @@ function resetBlockPosition() {
       player.matrix = jPiece;
       break;
     }
-/*
-  if (player.matrix == lPiece || player.matrix == jPiece || player.matrix == square || player.matrix == iPiece) {
-      player.position.y = gameMap.length - player.matrix.length;
-  } else {
-    player.position.y = gameMap.length - player.matrix.length + 1;
-  }
-  */
+
   player.position.y = gameMap.length - player.matrix.length;
   player.position.x = (gameMap[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
 
@@ -185,7 +190,7 @@ function endGame() {
         alert("End game");
         let dropInterval = 1000;
 
-        ranking.push("Etevaldo", totalScore, difficultyArray[difficultyCounter], parseInt(totalSeconds / 60), totalSeconds % 60); //achar alguma maneira de inserir o tempo num melhor formato
+        ranking.push(player.name, totalScore, difficultyArray[difficultyCounter], parseInt(totalSeconds / 60), totalSeconds % 60); //achar alguma maneira de inserir o tempo num melhor formato
 
         totalSeconds = 0;
         totalScore = 0;
@@ -349,5 +354,47 @@ function gameMapSweep() {
     }
 }
 
+function setUserName() {
+    var name = prompt("Please, tell us your name!", "");
+    var element = document.getElementById('userName');
+
+    if (name == null || name == "") {
+        name = "Joãozinho"
+        element.innerHTML = name;
+    } else {
+        element.innerHTML = name;
+    }
+    player.name = name;
+}
+
+function gameDimensions() {
+    if(confirm("Press 'OK' for a 10x20 game and 'Cancel' for a 22x44 one")) {
+        matrixDimensions.width = 10;
+        matrixDimensions.height = 20;
+    } else {
+        matrixDimensions.width = 22;
+        matrixDimensions.height = 44;
+    }
+}
+
+function createGameMap() {
+    gameMap = createMatrix(matrixDimensions.width, matrixDimensions.height);
+    var canvasMap = document.getElementById('tetris');
+    if (matrixDimensions.width === 10) {
+        width = matrixDimensions.width * 15;
+        height = matrixDimensions.height * 15;
+        context.scale(30, 8);
+    } else {
+        width = matrixDimensions.width * 12;
+        height = matrixDimensions.height * 12;
+        context.scale(13.6, 3.4);
+    }
+    canvasMap.style.width = `${width}px`;
+    canvasMap.style.height = `${height}px`;
+}
+
+gameDimensions();
+createGameMap();
 resetBlockPosition();
 update();
+setUserName();
