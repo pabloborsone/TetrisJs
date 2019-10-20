@@ -2,16 +2,49 @@
 <html lang="pt-br">
 <head>
     <title>Tetris</title>
+    <link rel="stylesheet" href="estilo.css">
 </head>
 <body>
-  <canvas id="tetris"></canvas>
   <h5 id="difficulty"></h5>
-  <p>Pontos: <h5 id="scoreBoard"></h5>
-  <p>Tempo: <h5 id="timer"></h5>
   <label id="minutes">00</label>:<label id="seconds">00</label>
   <h1 id="rankingJog"></h1>
 
   <p id="userName"></p>
+
+  <div class="commands">
+    <h3>Commands:</h3>
+    <ul>
+      <li>Press ESC to pause</li>
+      <li>Press the arrows for movement</li>
+      <li>Press Spacebar to rotate the Tetrominio</li>
+    </ul>
+
+  </div>
+
+<div class="score">
+  <table>
+    <tr>
+      <td><h3><b>Score:</b></h3></td>
+      <td><h4 id="scoreBoard"></h4></td>
+    </tr>
+    <tr>
+      <td><h3>Timer:</h3></td>
+      <td><h4 id="timer"></h4></td>
+    </tr>
+  </table>
+
+</div>
+
+  <div class="centralizar">
+
+    <h1>Tetris in the Mirror</h1>
+
+
+
+    <canvas id="tetris"></canvas>
+
+
+  </div>
   <script src="tetris.js" charset="utf-8"></script>
 </body>
 </html>
